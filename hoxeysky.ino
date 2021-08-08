@@ -98,157 +98,24 @@ void setup() {
 
 void loop() 
 {
-
+	unsigned char randomScript = random(0, 6);
+	bool doDelay = ((random(0, 100) > 50) ? true : false);
+	uint16_t delayTime = random(1000, 5000);
 	
-	//	Fireball
-	hoxeyColor fireballColors[4];
-	fireballColors[0].r = 4095;
-	fireballColors[0].g = 1152;
-	fireballColors[0].b = 1344;
-	fireballColors[1].r = 4095;
-	fireballColors[1].g = 2096;
-	fireballColors[1].b = 816;
-	fireballColors[2].r = 4095;	
-	fireballColors[2].g = 3040;
-	fireballColors[2].b = 288;
-	fireballColors[3].r = 4095;	
-	fireballColors[3].g = 3504;
-	fireballColors[3].b = 16;
+	if(randomScript == 0) { scriptFireball(); }
+	else if(randomScript == 1) { scriptSlideRandom(); }
+	else if(randomScript == 2) { scriptClear(); }
+	else if(randomScript == 3) { scriptPingPong(); }
+	else if(randomScript == 4) { scriptBlink(); }
+	else if(randomScript == 5) { scriptColorRotate(); }
+	else if(randomScript == 6) { scriptRainbowStep(); }
 	
-	effectFireball((hoxeyColor *)&fireballColors, 4, 8, 8, true);
-	
-	//	Slide to purple
-	effectSlideAll(2047, 0, 2047, 20, 10);
-	
-	//	Stay purple for 5 seconds
-	delay(5000);
-	
-	//	Slide to off
-	effectSlideAll(0, 0, 0, 16, 8);
-	
-	//	Stay off for 5 seconds
-	delay(5000);
-	
-	//	Ping pong several times
-	uint16_t colorLeft[3] = { 0, 0, 255 };
-	uint16_t colorRight[3] = { 0, 255, 0 };
-	for(unsigned char cycles = 0; cycles < 16; cycles++)
+	if(doDelay)
 	{
-		//	Update the colors that are ping ponging to morph shades
-		colorLeft[LED_B] = (cycles * 256) + 255;
-		colorLeft[LED_R] = (cycles * 128) + 127;
-		
-		colorRight[LED_G] = (cycles * 256) + 255;
-		colorRight[LED_R] = (cycles * 128) + 127;
-		
-		//	Initiate ping pong
-		effectPingPong((uint16_t *)&colorLeft, (uint16_t *)&colorRight, 6, true);
+		delay(delayTime);
 	}
 	
-	//	Blink green and blue several times
-	for(unsigned char cycles = 0; cycles < 32; cycles++)
-	{
-		hoxeyClear(0, 0, 4095);
-		delay(250);
-		hoxeyClear(0, 4095, 0);
-		delay(250);
-	}
 	
-	//	Slide to red
-	effectSlideAll(4096, 0, 0, 16, 8);
-	
-	//	Stay red for 3 seconds
-	delay(3000);
-	
-	//	Circle blue around
-	effectColorRotate(0, 0, 3071, 4, true);
-	
-	//	Circle blue around a bit faster
-	effectColorRotate(0, 0, 3071, 6, true);
-	
-	//	Circle blue again but don't preserve
-	effectColorRotate(0, 0, 3071, 8, false);
-	
-	//	Slide to dark green
-	effectSlideAll(0, 2047, 0, 8, 8);
-	
-	//	Stay green for 3 seconds
-	delay(3000);
-	
-	//	Circle blue in the green
-	effectColorRotate(0, 0, 3071, 2, true);
-	
-	//	Blue again faster
-	effectColorRotate(0, 0, 3071, 8, true);
-	effectColorRotate(0, 0, 3071, 16, true);
-	effectColorRotate(0, 0, 3071, 32, true);
-	effectColorRotate(0, 0, 3071, 32, true);
-	
-	//	Spin the blue fast several times
-	for(unsigned char cycles = 0; cycles < 16; cycles++)
-	{
-		effectColorRotate(0, 0, 3071, 64, true);
-	}
-	
-	//	Slide to blue and hold for 3 seconds
-	effectSlideAll(0, 0, 4095, 8, 16);
-	delay(3000);
-	
-	//	Spin green around
-	effectColorRotate(0, 4095, 0, 8, true);
-	effectColorRotate(0, 4095, 0, 16, true);
-	effectColorRotate(0, 4095, 0, 32, true);
-	effectColorRotate(0, 4095, 0, 32, true);
-	
-	//	Sping green fast several times
-	for(unsigned char cycles = 0; cycles < 15; cycles++)
-	{
-		effectColorRotate(0, 4095, 0, 64, true);
-	}
-	
-	//	Clear lights then go to black and hold
-	effectColorRotate(0, 4095, 0, 64, false);
-	hoxeyClear(0, 0, 0);
-	delay(5000);
-	
-	//	Flash green a few times
-	for(unsigned char cycles = 0; cycles < 4; cycles++)
-	{
-		effectSlideAll(0, 4095, 0, 255, 64);
-		delay(500);
-		effectSlideAll(0, 0, 0, 255, 64);
-		delay(500);
-	}
-	
-	//	Some rainbow stuff
-	for(unsigned char erb = 0; erb < 8; erb++)
-	{
-		effectSlideAll(4095, 0, 0, 255, 128);
-		effectSlideAll(0, 4095, 0, 255, 128);
-		effectSlideAll(0, 0, 4095, 255, 128);
-	}
-	
-	//	Set to green, slowly get brighter while spinning blue
-	effectSlideAll(0, 0, 0, 255, 64);
-	hoxeyClear(0, 0, 0);
-	delay(3000);
-	
-	for(unsigned char gloops = 0; gloops < 32; gloops++)
-	{
-		effectSlideAll(0, gloops * 128, 0, 16, 128);
-		effectColorRotate(0, 0, 3071, 32, true);
-	}
-	
-	//	Fast rainbow steps
-	for(unsigned char erb = 0; erb < 128; erb++)
-	{
-		effectSlideAll(4095, 0, 0, 8, 128);			//	To Red
-		effectSlideAll(4095, 4095, 0, 8, 128);		//	To Red + Green
-		effectSlideAll(0, 4095, 0, 8, 128);			//	To Green
-		effectSlideAll(0, 4095, 4095, 8, 128);		//	To Green + Blue
-		effectSlideAll(0, 0, 4095, 8, 128);			//	To Blue
-		effectSlideAll(4095, 0, 4095, 8, 128);		//	To Blue + Red
-	}
 
 }
 
@@ -286,6 +153,156 @@ void hoxeyWrite()
 	tlc.write();
 }
 
+//	Initiate a randomly generated fireball effect.  This uses 4 steps.
+void scriptFireball()
+{
+	unsigned char steps = 4;
+	hoxeyColor colors[4];
+	
+	uint16_t cycles = random(4, 32);
+	unsigned char frequency = random(2, 64);
+	bool preserve = ((random(0, 100) > 50) ? true : false);
+	
+	unsigned char oColor = random(0, 5);
+	if(oColor == 0)
+	{ 
+		colors[0].r = 4095;
+		colors[0].g = 0;
+		colors[0].b = 0;
+
+	}
+	else if(oColor == 1)
+	{
+		colors[0].r = 4095;
+		colors[0].g = 4095;
+		colors[0].b = 0;
+	}
+	else if(oColor == 2)
+	{
+		colors[0].r = 0;
+		colors[0].g = 4095;
+		colors[0].b = 0;
+	}
+	else if(oColor == 3)
+	{
+		colors[0].r = 0;
+		colors[0].g = 4095;
+		colors[0].b = 4095;
+	}
+	else if(oColor == 4)
+	{
+		colors[0].r = 0;
+		colors[0].g = 0;
+		colors[0].b = 4095;
+	}
+	else
+	{
+		colors[0].r = 4095;
+		colors[0].g = 0;
+		colors[0].b = 4095;
+	}
+	
+	for(unsigned char estep =1; estep < steps; estep++)
+	{
+		colors[estep].r = colors[0].r / estep;
+		colors[estep].g = colors[0].g / estep;
+		colors[estep].b = colors[0].b / estep;
+	}
+	
+
+	effectFireball((hoxeyColor *)&colors, steps, cycles, frequency, preserve);
+}
+
+void scriptSlideRandom()
+{
+	uint16_t r = random(0, 4095);
+	uint16_t g = random(0, 4095);
+	uint16_t b = random(0, 4095);
+	unsigned char steps = random(4, 64);
+	unsigned char frequency = random(4, 128);
+	
+	effectSlideAll(r, g, b, steps, frequency);
+}
+
+void scriptClear()
+{
+	unsigned char steps = random(8, 64);
+	unsigned char frequency = random(4, 128);
+	
+	unsigned char clearColor = random(0, 3);
+	
+	effectSlideAll
+	(
+		((clearColor == 1) ? 512 : 0), 
+		((clearColor == 2) ? 512 : 0), 
+		((clearColor == 3) ? 512 : 0), 
+		steps, 
+		frequency
+	);
+	
+	hoxeyClear
+	(
+		((clearColor == 1) ? 512 : 0), 
+		((clearColor == 2) ? 512 : 0), 
+		((clearColor == 3) ? 512 : 0)		
+	);
+}
+
+void scriptPingPong()
+{
+	//	Ping pong several times
+	unsigned char colorScheme = random(0, 1);
+	
+	hoxeyColor colorLeft;
+	colorLeft.r = ((colorScheme == 0) ? 4095 : 0);
+	colorLeft.g = ((colorScheme == 0) ? 0 : 4095);
+	colorLeft.b = ((colorScheme == 0) ? 0 : 0);
+	
+	hoxeyColor colorRight;
+	colorRight.r = ((colorScheme == 0) ? 3071 : 0);
+	colorRight.g = ((colorScheme == 0) ? 4095 : 0);
+	colorRight.b = ((colorScheme == 0) ? 0 : 4095);
+	
+	unsigned char cycles = random(4, 16);
+	unsigned char frequency = random(4, 32);
+	bool tracer = ((random(0, 100) > 50) ? true : false);
+	
+	for(unsigned char ecycle = 0; ecycle < cycles; ecycle++)
+	{
+		//	Initiate ping pong
+		effectPingPong(colorLeft, colorRight, frequency, tracer);
+	}
+}
+
+void scriptBlink()
+{
+	//	Blink green and blue several times
+	unsigned char cycles = random(8, 32);
+	uint16_t delayTime = random(100, 500);
+	unsigned char colorScheme = random(0, 1);
+	
+	for(unsigned char ecycle = 0; ecycle < cycles; ecycle++)
+	{
+		hoxeyClear
+		(
+			((colorScheme == 0) ? 0 : 4095), 
+			((colorScheme == 0) ? 0 : 0), 
+			((colorScheme == 0) ? 4095 : 0)
+		);
+		
+		delay(delayTime);
+		
+		hoxeyClear
+		(
+			((colorScheme == 0) ? 0 : 4095), 
+			((colorScheme == 0) ? 4095 : 3071),
+			((colorScheme == 0) ? 0 : 0)
+		);
+		
+		delay(delayTime);
+	}
+}
+
 //	Slide all LEDs to new color
 void effectSlideAll(uint16_t r, uint16_t g, uint16_t b, unsigned char steps, unsigned char frequency)
 {
@@ -314,6 +331,41 @@ void effectSlideAll(uint16_t r, uint16_t g, uint16_t b, unsigned char steps, uns
 		hoxeyWrite();
 		
 		delay(1000 / frequency);
+	}
+}
+
+void scriptColorRotate()
+{
+	hoxeyColor color;
+	unsigned char colorScheme = random(0, 2);
+	unsigned char frequency = random(4, 64);
+	unsigned char cycles = random(1, 8);
+	bool preserve = ((random(0, 100) > 50) ? true : false);
+	
+	if(colorScheme == 0) { color.r = 4095; } else { color.r = 0; }
+	if(colorScheme == 1) { color.g = 4095; } else { color.g = 0; }
+	if(colorScheme == 2) { color.b = 4095; } else { color.b = 0; }
+	
+	for(unsigned char ecycle = 0; ecycle < cycles; ecycle++)
+	{
+		effectColorRotate(color.r, color.g, color.b, frequency, preserve);
+	}
+}
+
+void scriptRainbowStep()
+{
+	unsigned char steps = random(4, 64);
+	unsigned char frequency = random(4, 128);
+	unsigned char cycles = random(4, 32);
+	
+	for(unsigned char erb = 0; erb < cycles; erb++)
+	{
+		effectSlideAll(4095, 0, 0, steps, frequency);			//	To Red
+		effectSlideAll(4095, 4095, 0, steps, frequency);		//	To Red + Green
+		effectSlideAll(0, 4095, 0, steps, frequency);			//	To Green
+		effectSlideAll(0, 4095, 4095, steps, frequency);		//	To Green + Blue
+		effectSlideAll(0, 0, 4095, steps, frequency);			//	To Blue
+		effectSlideAll(4095, 0, 4095, steps, frequency);		//	To Blue + Red
 	}
 }
 
@@ -394,7 +446,7 @@ void effectColorRotate(uint16_t r, uint16_t g, uint16_t b, unsigned char frequen
 //		*colorRight:	uint16_t[3] of second color
 //		frequency:		speed to move at
 //		tracer:			use tracer effect
-void effectPingPong(uint16_t * colorLeft, uint16_t * colorRight, unsigned char frequency, bool tracer)
+void effectPingPong(hoxeyColor colorLeft, hoxeyColor colorRight, unsigned char frequency, bool tracer)
 {
 	for(unsigned char el = 0; el < (LIGHTCOUNT / 2); el++)
 	{
@@ -409,16 +461,16 @@ void effectPingPong(uint16_t * colorLeft, uint16_t * colorRight, unsigned char f
 		//	Set current lights to specified colors
 		hoxeySetLED(
 			el,
-			colorRight[LED_R],
-			colorRight[LED_G],
-			colorRight[LED_B]
+			colorRight.r,
+			colorRight.g,
+			colorRight.b
 		);
 		
 		hoxeySetLED(
 			(LIGHTCOUNT - 1) - el,
-			colorLeft[LED_R],
-			colorLeft[LED_G],
-			colorLeft[LED_B]
+			colorLeft.r,
+			colorLeft.g,
+			colorLeft.b
 		);
 		
 		hoxeyWrite();
@@ -442,16 +494,16 @@ void effectPingPong(uint16_t * colorLeft, uint16_t * colorRight, unsigned char f
 		//	Set current lights to specified colors
 		hoxeySetLED(
 			el,
-			colorRight[LED_R],
-			colorRight[LED_G],
-			colorRight[LED_B]
+			colorRight.r, 
+			colorRight.g,
+			colorRight.b
 		);
 		
 		hoxeySetLED(
 			(LIGHTCOUNT - 1) - el,
-			colorLeft[LED_R],
-			colorLeft[LED_G],
-			colorLeft[LED_B]
+			colorLeft.r, 
+			colorLeft.g, 
+			colorLeft.b
 		);
 		
 		hoxeyWrite();
