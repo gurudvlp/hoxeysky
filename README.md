@@ -48,4 +48,4 @@ http://www.adafruit.com/products/1429
 
 # wiring
 
-[Wiring Diagram](https://github.com/gurudvlp/hoxeysky/blob/master/docs/wiring_diagram.png?raw=true)
+[Wiring Diagram](https://github.com/gurudvlp/hoxeysky/blob/main/docs/wire_diagram.png?raw=true)
