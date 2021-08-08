@@ -98,9 +98,10 @@ void setup() {
 
 void loop() 
 {
-	unsigned char randomScript = random(0, 6);
+	unsigned char randomScript = random(0, 8);
 	bool doDelay = ((random(0, 100) > 50) ? true : false);
 	uint16_t delayTime = random(1000, 5000);
+	
 	
 	if(randomScript == 0) { scriptFireball(); }
 	else if(randomScript == 1) { scriptSlideRandom(); }
@@ -108,7 +109,7 @@ void loop()
 	else if(randomScript == 3) { scriptPingPong(); }
 	else if(randomScript == 4) { scriptBlink(); }
 	else if(randomScript == 5) { scriptColorRotate(); }
-	else if(randomScript == 6) { scriptRainbowStep(); }
+	else { scriptRainbowStep(); }
 	
 	if(doDelay)
 	{
