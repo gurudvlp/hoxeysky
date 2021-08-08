@@ -160,11 +160,11 @@ void scriptFireball()
 	unsigned char steps = 4;
 	hoxeyColor colors[4];
 	
-	uint16_t cycles = random(4, 32);
-	unsigned char frequency = random(2, 64);
+	uint16_t cycles = random(4, 33);
+	unsigned char frequency = random(2, 65);
 	bool preserve = ((random(0, 100) > 50) ? true : false);
 	
-	unsigned char oColor = random(0, 5);
+	unsigned char oColor = random(0, 6);
 	if(oColor == 0)
 	{ 
 		colors[0].r = 4095;
@@ -216,21 +216,21 @@ void scriptFireball()
 
 void scriptSlideRandom()
 {
-	uint16_t r = random(0, 4095);
-	uint16_t g = random(0, 4095);
-	uint16_t b = random(0, 4095);
-	unsigned char steps = random(4, 64);
-	unsigned char frequency = random(4, 128);
+	uint16_t r = random(0, 4096);
+	uint16_t g = random(0, 4096);
+	uint16_t b = random(0, 4096);
+	unsigned char steps = random(4, 65);
+	unsigned char frequency = random(4, 129);
 	
 	effectSlideAll(r, g, b, steps, frequency);
 }
 
 void scriptClear()
 {
-	unsigned char steps = random(8, 64);
-	unsigned char frequency = random(4, 128);
+	unsigned char steps = random(8, 65);
+	unsigned char frequency = random(4, 129);
 	
-	unsigned char clearColor = random(0, 3);
+	unsigned char clearColor = random(0, 4);
 	
 	effectSlideAll
 	(
@@ -252,7 +252,7 @@ void scriptClear()
 void scriptPingPong()
 {
 	//	Ping pong several times
-	unsigned char colorScheme = random(0, 1);
+	unsigned char colorScheme = random(0, 2);
 	
 	hoxeyColor colorLeft;
 	colorLeft.r = ((colorScheme == 0) ? 4095 : 0);
@@ -264,8 +264,8 @@ void scriptPingPong()
 	colorRight.g = ((colorScheme == 0) ? 4095 : 0);
 	colorRight.b = ((colorScheme == 0) ? 0 : 4095);
 	
-	unsigned char cycles = random(4, 16);
-	unsigned char frequency = random(4, 32);
+	unsigned char cycles = random(4, 17);
+	unsigned char frequency = random(4, 33);
 	bool tracer = ((random(0, 100) > 50) ? true : false);
 	
 	for(unsigned char ecycle = 0; ecycle < cycles; ecycle++)
@@ -278,9 +278,9 @@ void scriptPingPong()
 void scriptBlink()
 {
 	//	Blink green and blue several times
-	unsigned char cycles = random(8, 32);
-	uint16_t delayTime = random(100, 500);
-	unsigned char colorScheme = random(0, 1);
+	unsigned char cycles = random(8, 33);
+	uint16_t delayTime = random(100, 501);
+	unsigned char colorScheme = random(0, 2);
 	
 	for(unsigned char ecycle = 0; ecycle < cycles; ecycle++)
 	{
@@ -338,9 +338,9 @@ void effectSlideAll(uint16_t r, uint16_t g, uint16_t b, unsigned char steps, uns
 void scriptColorRotate()
 {
 	hoxeyColor color;
-	unsigned char colorScheme = random(0, 2);
-	unsigned char frequency = random(4, 64);
-	unsigned char cycles = random(1, 8);
+	unsigned char colorScheme = random(0, 3);
+	unsigned char frequency = random(4, 65);
+	unsigned char cycles = random(1, 9);
 	bool preserve = ((random(0, 100) > 50) ? true : false);
 	
 	if(colorScheme == 0) { color.r = 4095; } else { color.r = 0; }
@@ -355,9 +355,17 @@ void scriptColorRotate()
 
 void scriptRainbowStep()
 {
-	unsigned char steps = random(4, 64);
-	unsigned char frequency = random(4, 128);
-	unsigned char cycles = random(4, 32);
+	unsigned char steps = random(4, 65);
+	unsigned char frequency = random(steps / 2, 129);
+	unsigned char cycles = random(1, 5);
+	
+	Serial.print("scriptRainbowStep: ");
+	Serial.print("steps: ");
+	Serial.print(steps, DEC);
+	Serial.print(", frequency: ");
+	Serial.print(frequency, DEC);
+	Serial.print(", cycles: ");
+	Serial.println(cycles, DEC);
 	
 	for(unsigned char erb = 0; erb < cycles; erb++)
 	{
