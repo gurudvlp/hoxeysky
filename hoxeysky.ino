@@ -102,13 +102,13 @@ void loop()
 	bool doDelay = ((random(0, 100) > 50) ? true : false);
 	uint16_t delayTime = random(1000, 5000);
 	
-	
 	if(randomScript == 0) { scriptFireball(); }
 	else if(randomScript == 1) { scriptSlideRandom(); }
 	else if(randomScript == 2) { scriptClear(); }
 	else if(randomScript == 3) { scriptPingPong(); }
 	else if(randomScript == 4) { scriptBlink(); }
 	else if(randomScript == 5) { scriptColorRotate(); }
+	else if(randomScript == 6) { scriptBreathe(); }
 	else { scriptRainbowStep(); }
 	
 	if(doDelay)
@@ -359,22 +359,117 @@ void scriptRainbowStep()
 	unsigned char frequency = random(steps / 2, 129);
 	unsigned char cycles = random(1, 5);
 	
-	Serial.print("scriptRainbowStep: ");
-	Serial.print("steps: ");
-	Serial.print(steps, DEC);
-	Serial.print(", frequency: ");
-	Serial.print(frequency, DEC);
-	Serial.print(", cycles: ");
-	Serial.println(cycles, DEC);
+	bool fullSpectrum = ((random(0, 100) > 50) ? true : false);
+	bool fullSlide = ((random(0, 100) > 50) ? true : false);
 	
 	for(unsigned char erb = 0; erb < cycles; erb++)
 	{
-		effectSlideAll(4095, 0, 0, steps, frequency);			//	To Red
-		effectSlideAll(4095, 4095, 0, steps, frequency);		//	To Red + Green
-		effectSlideAll(0, 4095, 0, steps, frequency);			//	To Green
-		effectSlideAll(0, 4095, 4095, steps, frequency);		//	To Green + Blue
-		effectSlideAll(0, 0, 4095, steps, frequency);			//	To Blue
-		effectSlideAll(4095, 0, 4095, steps, frequency);		//	To Blue + Red
+		if(fullSlide)
+		{
+			effectSlideAll(4095, 0, 0, steps, frequency);							//	To Red
+			if(fullSpectrum) { effectSlideAll(4095, 4095, 0, steps, frequency); }	//	To Red + Green
+			effectSlideAll(0, 4095, 0, steps, frequency);							//	To Green
+			if(fullSpectrum) { effectSlideAll(0, 4095, 4095, steps, frequency);	}	//	To Green + Blue
+			effectSlideAll(0, 0, 4095, steps, frequency);							//	To Blue
+			if(fullSpectrum) { effectSlideAll(4095, 0, 4095, steps, frequency);	}	//	To Blue + Red
+		}
+		else
+		{
+			//	Clear to each color
+			
+			//	Red
+			hoxeyClear(4095, 0, 0);
+			delay((1000 / frequency) * steps);
+			hoxeyClear(0, 0, 0);
+			delay((1000 / frequency) * steps);
+			
+			//	Red + Green
+			if(fullSpectrum)
+			{
+				hoxeyClear(4095, 0, 0);
+				delay((1000 / frequency) * steps);
+				hoxeyClear(0, 0, 0);
+				delay((1000 / frequency) * steps);
+			}
+			
+			//	Green
+			hoxeyClear(0, 4095, 0);
+			delay((1000 / frequency) * steps);
+			hoxeyClear(0, 0, 0);
+			delay((1000 / frequency) * steps);
+			
+			//	Green + Blue
+			if(fullSpectrum)
+			{
+				hoxeyClear(0, 4095, 4095);
+				delay((1000 / frequency) * steps);
+				hoxeyClear(0, 0, 0);
+				delay((1000 / frequency) * steps);
+			}
+			
+			//	Blue
+			hoxeyClear(0, 0, 4095);
+			delay((1000 / frequency) * steps);
+			hoxeyClear(0, 0, 0);
+			delay((1000 / frequency) * steps);
+			
+			//	Blue + Red
+			if(fullSpectrum)
+			{
+				hoxeyClear(4095, 0, 4095);
+				delay((1000 / frequency) * steps);
+				hoxeyClear(0, 0, 0);
+				delay((1000 / frequency) * steps);
+			}
+		}
+	}
+}
+
+void scriptBreathe()
+{
+	//	Breath will quickly slide to the new color.  It will then either quickly
+	//	or slowly breath for a minute.
+	
+	unsigned char frequency = ((random(0, 100) > 50) ? 32 : 8);
+	unsigned char delayTime = ((random(0, 100) > 50) ? 100 : 500);
+	bool breatheBlack = ((random(0, 100) > 50) ? true : false);
+	//bool breathFast = ((random(0, 100) > 50) ? true : false);
+	
+	hoxeyColor color;
+	hoxeyColor colorOff;
+	unsigned char colorScheme = random(0, 3);
+	
+	color.r = 0;
+	color.g = 0;
+	color.b = 0;
+	colorOff.r = 0;
+	colorOff.g = 0;
+	colorOff.b = 0;
+	
+	if(colorScheme == 0) { color.r = 4095; }
+	else if(colorScheme == 1) { color.g = 4095; }
+	else { color.b = 4095; }
+	
+	if(!breatheBlack)
+	{
+		if(colorScheme == 0) { colorOff.g = 4095; colorOff.b = 4095; }
+		if(colorScheme == 1) { colorOff.r = 4095; colorOff.b = 4095; }
+		else { colorOff.r = 4095; colorOff.g = 4095; }
+	}
+	
+	//	Slide to the new color in like half a second
+	effectSlideAll(color.r, color.g, color.b, 32, 64);
+	
+	//	Clear to the new color to make sure it's right
+	hoxeyClear(color.r, color.g, color.b);
+	
+	for(unsigned char cycles = 0; cycles < 16; cycles++)
+	{
+		effectSlideAll(colorOff.r, colorOff.g, colorOff.b, 8, frequency);
+		delay(delayTime);
+		
+		effectSlideAll(color.r, color.g, color.b, 8, frequency);
+		delay(delayTime);
 	}
 }
 
