@@ -98,9 +98,12 @@ void setup() {
 
 void loop() 
 {
-  unsigned char randomScript = random(0, 9);
+  unsigned char randomScript = random(0, 10);
   bool doDelay = ((random(0, 100) > 50) ? true : false);
   uint16_t delayTime = random(1000, 5000);
+  
+  scriptFillAndSpin();
+  
     
   if(randomScript == 0) { scriptFireball(); }
   else if(randomScript == 1) { scriptSlideRandom(); }
@@ -110,6 +113,7 @@ void loop()
   else if(randomScript == 5) { scriptColorRotate(); }
   else if(randomScript == 6) { scriptBreathe(); }
   else if(randomScript == 7) { scriptRainbowSpin(); }
+  else if(randomScript == 8) { scriptFillAndSpin(); }
   else { scriptRainbowStep(); }
   
   if(doDelay)
@@ -507,6 +511,52 @@ void scriptRainbowSpin()
       delay(1000 / frequency);
     }
   }
+}
+
+void scriptFillAndSpin()
+{
+	unsigned char colorScheme = random(0, 3);
+	unsigned char rotations = random(4, 17);
+	bool reverse = ((random(0, 100) > 50) ? true : false);
+	unsigned char frequency = ((random(0, 100) > 50) ? 8 : 16);
+
+	hoxeyClear(0, 0, 0);
+	
+	if(colorScheme == 0)
+	{
+		//	Blue and green
+		hoxeySetLED(0, 0, 0, 4095);
+		hoxeySetLED(LIGHTCOUNT / 2, 0, 4095, 0);
+	}
+	else if(colorScheme == 1)
+	{
+		//	Red >> Yellow >> Green >> Yellow >> Red
+		hoxeySetLED(0, 3263, 0, 0);
+		hoxeySetLED(LIGHTCOUNT / 2, 0, 3263, 0);
+		
+		hoxeySetLED(LIGHTCOUNT / 4, 3263, 3263, 0);
+		hoxeySetLED(LIGHTCOUNT - (LIGHTCOUNT / 4), 3263, 3263, 0);
+	}
+	else
+	{
+		//	Completely random
+		for(unsigned char el = 0; el < LIGHTCOUNT; el++)
+		{
+			hoxeySetLED(el, random(0, 4096), random(0, 4096), random(0, 4096));
+		}
+	}
+	
+	hoxeyWrite();
+	
+	//  Do the spin
+	for(unsigned char erotation = 0; erotation < rotations; erotation++)
+	{
+		for(unsigned char el = 0; el < LIGHTCOUNT; el++)
+		{
+			effectRotateAll(reverse);
+			delay(1000 / frequency);
+		}
+	}
 }
 
 uint16_t calculateSlideFactor(unsigned char steps, uint16_t originalColor, uint16_t newColor)
