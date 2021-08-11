@@ -102,8 +102,6 @@ void loop()
   bool doDelay = ((random(0, 100) > 50) ? true : false);
   uint16_t delayTime = random(1000, 5000);
   
-  scriptFillAndSpin();
-  
     
   if(randomScript == 0) { scriptFireball(); }
   else if(randomScript == 1) { scriptSlideRandom(); }
@@ -381,11 +379,12 @@ void scriptRainbowStep()
     else
     {
       //  Clear to each color
+      bool clearEach = ((random(0, 100) > 50) ? true : false);
       
       //  Red
       hoxeyClear(4095, 0, 0);
       delay((1000 / frequency) * steps);
-      hoxeyClear(0, 0, 0);
+      if(clearEach) { hoxeyClear(0, 0, 0); }
       delay((1000 / frequency) * steps);
       
       //  Red + Green
@@ -393,14 +392,14 @@ void scriptRainbowStep()
       {
         hoxeyClear(4095, 0, 0);
         delay((1000 / frequency) * steps);
-        hoxeyClear(0, 0, 0);
+        if(clearEach) { hoxeyClear(0, 0, 0); }
         delay((1000 / frequency) * steps);
       }
       
       //  Green
       hoxeyClear(0, 4095, 0);
       delay((1000 / frequency) * steps);
-      hoxeyClear(0, 0, 0);
+      if(clearEach) { hoxeyClear(0, 0, 0); }
       delay((1000 / frequency) * steps);
       
       //  Green + Blue
@@ -408,14 +407,14 @@ void scriptRainbowStep()
       {
         hoxeyClear(0, 4095, 4095);
         delay((1000 / frequency) * steps);
-        hoxeyClear(0, 0, 0);
+        if(clearEach) { hoxeyClear(0, 0, 0); }
         delay((1000 / frequency) * steps);
       }
       
       //  Blue
       hoxeyClear(0, 0, 4095);
       delay((1000 / frequency) * steps);
-      hoxeyClear(0, 0, 0);
+      if(clearEach) { hoxeyClear(0, 0, 0); }
       delay((1000 / frequency) * steps);
       
       //  Blue + Red
@@ -423,7 +422,7 @@ void scriptRainbowStep()
       {
         hoxeyClear(4095, 0, 4095);
         delay((1000 / frequency) * steps);
-        hoxeyClear(0, 0, 0);
+        if(clearEach) { hoxeyClear(0, 0, 0); }
         delay((1000 / frequency) * steps);
       }
     }
