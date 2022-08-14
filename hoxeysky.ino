@@ -48,6 +48,10 @@
 
 #include "Adafruit_TLC5947.h"
 
+enum hoxeyModes { UFO, MYSTERYBLOCK };
+
+#define HOXEYMODE MYSTERYBLOCK
+
 typedef struct {
   uint16_t r;
   uint16_t g;
@@ -79,7 +83,7 @@ void setup() {
   Serial.println("hoxeysky 2021");
   Serial.println("bmfs");
   Serial.println("");
-  Serial.println("2019 - 2021 Brian Murphy");
+  Serial.println("2019 - 2022 Brian Murphy");
   Serial.println("github.com/gurudvlp");
   
   tlc.begin();
@@ -98,26 +102,119 @@ void setup() {
 
 void loop() 
 {
-  unsigned char randomScript = random(0, 10);
-  bool doDelay = ((random(0, 100) > 50) ? true : false);
-  uint16_t delayTime = random(1000, 5000);
+	unsigned char randomScript = random(0, 10);
+	bool doDelay = ((random(0, 100) > 50) ? true : false);
+	uint16_t delayTime = random(1000, 5000);
   
-    
-  if(randomScript == 0) { scriptFireball(); }
-  else if(randomScript == 1) { scriptSlideRandom(); }
-  else if(randomScript == 2) { scriptClear(); }
-  else if(randomScript == 3) { scriptPingPong(); }
-  else if(randomScript == 4) { scriptBlink(); }
-  else if(randomScript == 5) { scriptColorRotate(); }
-  else if(randomScript == 6) { scriptBreathe(); }
-  else if(randomScript == 7) { scriptRainbowSpin(); }
-  else if(randomScript == 8) { scriptFillAndSpin(); }
-  else { scriptRainbowStep(); }
-  
-  if(doDelay)
-  {
-    delay(delayTime);
-  }
+	if(HOXEYMODE == UFO)
+	{
+		if(randomScript == 0) { scriptFireball(); }
+		else if(randomScript == 1) { scriptSlideRandom(); }
+		else if(randomScript == 2) { scriptClear(); }
+		else if(randomScript == 3) { scriptPingPong(); }
+		else if(randomScript == 4) { scriptBlink(); }
+		else if(randomScript == 5) { scriptColorRotate(); }
+		else if(randomScript == 6) { scriptBreathe(); }
+		else if(randomScript == 7) { scriptRainbowSpin(); }
+		else if(randomScript == 8) { scriptFillAndSpin(); }
+		else { scriptRainbowStep(); }
+	}
+	else
+	{
+		//	HOXEYMODE is a mystery block (think Mario)
+		unsigned char frequency = ((random(0, 100) > 50) ? 64 : 128);
+		unsigned char delayTime = ((random(0, 100) > 50) ? 50 : 128);
+		bool breatheBlack = ((random(0, 100) > 50) ? true : false);
+		unsigned char colorScheme = random(0, 3);
+		
+		effectSlideAll(4095, 0, 0, 8, frequency);
+		delay(4000);
+		
+		hoxeyColor color1;
+		color1.r = 4095;
+		color1.g = 0;
+		color1.b = 0;
+		
+		hoxeyColor color2;
+		color2.r = 0;
+		color2.g = 4095;
+		color2.b = 0;
+		
+		scriptStrobe(&color1, &color2, true, frequency);
+		scriptStrobe(&color1, &color2, false, frequency);
+		
+		effectSlideAll(0, 4095, 0, 8, frequency);
+		delay(4000);
+		
+		color1.r = 0;
+		color1.g = 0;
+		color1.b = 4095;
+		
+		scriptStrobe(&color2, &color1, true, frequency);
+		scriptStrobe(&color2, &color1, false, frequency);
+		
+		effectSlideAll(0, 0, 4095, 8, frequency);
+		delay(4000);
+		
+		scriptBreathe(frequency, 50, true, 2);
+		
+		scriptRainbowStep();
+		
+		
+		/*if(randomScript == 0)
+		{
+			scriptBreathe(
+				frequency, 
+				delayTime, 
+				breatheBlack, 
+				colorScheme
+			);
+		}
+		else if(randomScript == 1)
+		{
+			scriptRainbowStep();
+		}
+		else if(randomScript == 2)
+		{
+			hoxeyColor colors[4];
+			colors[0].r = 0;
+			colors[0].g = 4095;
+			colors[0].b = 0;
+			
+			scriptFireball(
+				3,				//	steps
+				12,				//	cycles
+				frequency / 4,	//	frequency
+				breatheBlack,	//	preserve
+				&colors[0]			//	color pattern
+			);
+		}
+		else if(randomScript == 3)
+		{
+			hoxeyColor oColor;
+			oColor.r = 0;
+			oColor.g = 4095;
+			oColor.b = 0;
+			
+			hoxeyColor sColor;
+			sColor.r = 0;
+			sColor.g = 0;
+			sColor.b = 4095;
+			
+			scriptStrobe(&oColor, &sColor, breatheBlack, frequency);
+		}
+		else
+		{
+			effectSlideAll(4095, 0, 0, 32, 12);
+			
+			delay(5000);
+		}*/
+	}
+
+	if(doDelay)
+	{
+		delay(delayTime);
+	}
   
   
 
@@ -158,63 +255,80 @@ void hoxeyWrite()
 }
 
 //  Initiate a randomly generated fireball effect.  This uses 4 steps.
+void scriptFireball(
+	unsigned char steps,
+	uint16_t cycles,
+	unsigned char frequency,
+	bool preserve,
+	hoxeyColor * colors
+)
+{
+	for(unsigned char estep =1; estep < steps; estep++)
+	{
+		colors[estep].r = colors[0].r / estep;
+		colors[estep].g = colors[0].g / estep;
+		colors[estep].b = colors[0].b / estep;
+	}
+
+
+	effectFireball((hoxeyColor *)&colors, steps, cycles, frequency, preserve);
+}
+
 void scriptFireball()
 {
-  unsigned char steps = 4;
-  hoxeyColor colors[4];
-  
-  uint16_t cycles = random(4, 33);
-  unsigned char frequency = random(2, 65);
-  bool preserve = ((random(0, 100) > 50) ? true : false);
-  
-  unsigned char oColor = random(0, 6);
-  if(oColor == 0)
-  { 
-    colors[0].r = 4095;
-    colors[0].g = 0;
-    colors[0].b = 0;
+	unsigned char steps = 4;
+	uint16_t cycles = random(4, 33);
+	unsigned char frequency = random(2, 65);
+	bool preserve = ((random(0, 100) > 50) ? true : false);
+	
+	hoxeyColor colors[4];
+	unsigned char oColor = random(0, 6);
+	
+	if(oColor == 0)
+	{ 
+		colors[0].r = 4095;
+		colors[0].g = 0;
+		colors[0].b = 0;
 
-  }
-  else if(oColor == 1)
-  {
-    colors[0].r = 4095;
-    colors[0].g = 4095;
-    colors[0].b = 0;
-  }
-  else if(oColor == 2)
-  {
-    colors[0].r = 0;
-    colors[0].g = 4095;
-    colors[0].b = 0;
-  }
-  else if(oColor == 3)
-  {
-    colors[0].r = 0;
-    colors[0].g = 4095;
-    colors[0].b = 4095;
-  }
-  else if(oColor == 4)
-  {
-    colors[0].r = 0;
-    colors[0].g = 0;
-    colors[0].b = 4095;
-  }
-  else
-  {
-    colors[0].r = 4095;
-    colors[0].g = 0;
-    colors[0].b = 4095;
-  }
+	}
+	else if(oColor == 1)
+	{
+		colors[0].r = 4095;
+		colors[0].g = 4095;
+		colors[0].b = 0;
+	}
+	else if(oColor == 2)
+	{
+		colors[0].r = 0;
+		colors[0].g = 4095;
+		colors[0].b = 0;
+	}
+	else if(oColor == 3)
+	{
+		colors[0].r = 0;
+		colors[0].g = 4095;
+		colors[0].b = 4095;
+	}
+	else if(oColor == 4)
+	{
+		colors[0].r = 0;
+		colors[0].g = 0;
+		colors[0].b = 4095;
+	}
+	else
+	{
+		colors[0].r = 4095;
+		colors[0].g = 0;
+		colors[0].b = 4095;
+	}
   
-  for(unsigned char estep =1; estep < steps; estep++)
-  {
-    colors[estep].r = colors[0].r / estep;
-    colors[estep].g = colors[0].g / estep;
-    colors[estep].b = colors[0].b / estep;
-  }
-  
-
-  effectFireball((hoxeyColor *)&colors, steps, cycles, frequency, preserve);
+	scriptFireball(
+		steps,
+		cycles,
+		frequency,
+		preserve,
+		&colors[0]
+	);
 }
 
 void scriptSlideRandom()
@@ -429,52 +543,61 @@ void scriptRainbowStep()
   }
 }
 
+
+//  Breath will quickly slide to the new color.  It will then either quickly
+//  or slowly breath for a minute.
+void scriptBreathe(
+	unsigned char frequency,
+	unsigned char delayTime,
+	bool breatheBlack,
+	unsigned char colorScheme
+)
+{
+	hoxeyColor color;
+	hoxeyColor colorOff;
+
+	color.r = 0;
+	color.g = 0;
+	color.b = 0;
+	colorOff.r = 0;
+	colorOff.g = 0;
+	colorOff.b = 0;
+
+	if(colorScheme == 0) { color.r = 4095; }
+	else if(colorScheme == 1) { color.g = 4095; }
+	else { color.b = 4095; }
+  
+	if(!breatheBlack)
+	{
+		if(colorScheme == 0) { colorOff.g = 4095; colorOff.b = 4095; }
+		if(colorScheme == 1) { colorOff.r = 4095; colorOff.b = 4095; }
+		else { colorOff.r = 4095; colorOff.g = 4095; }
+	}
+  
+	//  Slide to the new color in like half a second
+	effectSlideAll(color.r, color.g, color.b, 32, 64);
+
+	//  Clear to the new color to make sure it's right
+	hoxeyClear(color.r, color.g, color.b);
+  
+	for(unsigned char cycles = 0; cycles < 16; cycles++)
+	{
+		effectSlideAll(colorOff.r, colorOff.g, colorOff.b, 8, frequency);
+		delay(delayTime);
+
+		effectSlideAll(color.r, color.g, color.b, 8, frequency);
+		delay(delayTime);
+	}
+}
+
 void scriptBreathe()
 {
-  //  Breath will quickly slide to the new color.  It will then either quickly
-  //  or slowly breath for a minute.
-  
-  unsigned char frequency = ((random(0, 100) > 50) ? 32 : 8);
-  unsigned char delayTime = ((random(0, 100) > 50) ? 100 : 500);
-  bool breatheBlack = ((random(0, 100) > 50) ? true : false);
-  //bool breathFast = ((random(0, 100) > 50) ? true : false);
-  
-  hoxeyColor color;
-  hoxeyColor colorOff;
-  unsigned char colorScheme = random(0, 3);
-  
-  color.r = 0;
-  color.g = 0;
-  color.b = 0;
-  colorOff.r = 0;
-  colorOff.g = 0;
-  colorOff.b = 0;
-  
-  if(colorScheme == 0) { color.r = 4095; }
-  else if(colorScheme == 1) { color.g = 4095; }
-  else { color.b = 4095; }
-  
-  if(!breatheBlack)
-  {
-    if(colorScheme == 0) { colorOff.g = 4095; colorOff.b = 4095; }
-    if(colorScheme == 1) { colorOff.r = 4095; colorOff.b = 4095; }
-    else { colorOff.r = 4095; colorOff.g = 4095; }
-  }
-  
-  //  Slide to the new color in like half a second
-  effectSlideAll(color.r, color.g, color.b, 32, 64);
-  
-  //  Clear to the new color to make sure it's right
-  hoxeyClear(color.r, color.g, color.b);
-  
-  for(unsigned char cycles = 0; cycles < 16; cycles++)
-  {
-    effectSlideAll(colorOff.r, colorOff.g, colorOff.b, 8, frequency);
-    delay(delayTime);
-    
-    effectSlideAll(color.r, color.g, color.b, 8, frequency);
-    delay(delayTime);
-  }
+	unsigned char frequency = ((random(0, 100) > 50) ? 32 : 8);
+	unsigned char delayTime = ((random(0, 100) > 50) ? 100 : 500);
+	bool breatheBlack = ((random(0, 100) > 50) ? true : false);
+	unsigned char colorScheme = random(0, 3);
+	
+	scriptBreathe(frequency, delayTime, breatheBlack, colorScheme);
 }
 
 void scriptRainbowSpin()
@@ -554,6 +677,36 @@ void scriptFillAndSpin()
 		{
 			effectRotateAll(reverse);
 			delay(1000 / frequency);
+		}
+	}
+}
+
+void scriptStrobe(
+	hoxeyColor * originalColor,
+	hoxeyColor * secondColor,
+	bool blank,
+	unsigned char frequency
+)
+{
+	unsigned char strobes = (random(0, 100) > 50 ? 32 : 64);
+	
+	for(unsigned char estrobe = 0; estrobe < strobes; estrobe++)
+	{
+		if(!blank)
+		{
+			effectSlideAll(originalColor->r, originalColor->g, originalColor->b, 16, frequency);
+			effectSlideAll(secondColor->r, secondColor->g, secondColor->b, 16, frequency);
+		}
+		else
+		{
+			if(estrobe % 2 == 0)
+			{
+				effectSlideAll(originalColor->r, originalColor->g, originalColor->b, 16, frequency);
+			}
+			else
+			{
+				effectSlideAll(0, 0, 0, 16, frequency);
+			}
 		}
 	}
 }
